@@ -5,6 +5,8 @@ import {
   ShieldCheck,
   TriangleAlert,
   Pill,
+  CircleCheck,
+  CircleX,
 } from "lucide-react";
 import BottomNavbar from "../../components/BottomNavbar";
 
@@ -37,12 +39,24 @@ export default function Result() {
             <Pill size={34} />
           </div>
 
-          <h1>{medicine.name}</h1>
-          <p>{medicine.generic_name}</p>
+          <h1>{medicine.brand_name}</h1>
+          <p>{medicine.composition}</p>
 
           <div className="confidence">
             <ShieldCheck size={18} />
             <span>AI Confidence {medicine.confidence}%</span>
+          </div>
+        </div>
+
+        <div className="grid2">
+          <div className="info">
+            <h4>Form</h4>
+            <p>{medicine.dosage_form}</p>
+          </div>
+
+          <div className="info">
+            <h4>Manufacturer</h4>
+            <p>{medicine.manufacturer}</p>
           </div>
         </div>
 
@@ -55,15 +69,47 @@ export default function Result() {
           </ul>
         </div>
 
+        <div className="section">
+          <div className="warning-title">
+            <CircleCheck size={20} color="#16a34a" />
+            <h3>Advantages</h3>
+          </div>
+          <ul>
+            {(medicine.advantages || []).map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="section">
+          <div className="warning-title">
+            <CircleX size={20} color="#dc2626" />
+            <h3>Disadvantages</h3>
+          </div>
+          <ul>
+            {(medicine.disadvantages || []).map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="section">
+          <h3>Good or Not</h3>
+          <div className="info">
+            <h4>{medicine.good_or_not?.rating}</h4>
+            <p>{medicine.good_or_not?.reason}</p>
+          </div>
+        </div>
+
         <div className="grid2">
           <div className="info">
             <h4>Dosage</h4>
-            <p>{medicine.dosage || "As directed by physician"}</p>
+            <p>{medicine.dosage}</p>
           </div>
 
           <div className="info">
             <h4>Best Time</h4>
-            <p>{medicine.timing || "After meals"}</p>
+            <p>{medicine.timing}</p>
           </div>
         </div>
 
@@ -88,13 +134,6 @@ export default function Result() {
             ))}
           </ul>
         </div>
-
-        {medicine.ocr_text && (
-          <div className="section">
-            <h3>OCR Text</h3>
-            <div className="ocr-box">{medicine.ocr_text}</div>
-          </div>
-        )}
       </div>
 
       <BottomNavbar />
