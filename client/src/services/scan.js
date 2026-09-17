@@ -1,5 +1,6 @@
 const API = import.meta.env.VITE_API_URL;
 
+// Medicine Scan
 export const scanMedicine = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
@@ -13,9 +14,16 @@ export const scanMedicine = async (file) => {
     throw new Error("Medicine scan failed");
   }
 
-  const data = await response.json();
+  return await response.json();
+};
 
-  return {
-    data,
-  };
+// Scan History
+export const getScanHistory = async () => {
+  const response = await fetch(`${API}/history`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch history");
+  }
+
+  return await response.json();
 };
