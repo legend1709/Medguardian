@@ -2,23 +2,17 @@ import easyocr
 from PIL import Image
 import numpy as np
 
-# Global OCR reader
-reader = None
-
-def get_reader():
-    global reader
-    if reader is None:
-        reader = easyocr.Reader(
-            ["en"],
-            gpu=False
-        )
-    return reader
+# OCR model load only once when server starts
+reader = easyocr.Reader(
+    ["en"],
+    gpu=False
+)
 
 def extract_text(image_path: str):
     image = Image.open(image_path).convert("RGB")
     image = np.array(image)
 
-    result = get_reader().readtext(image)
+    result = reader.readtext(image)
 
     lines = [item[1] for item in result]
 
