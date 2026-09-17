@@ -4,4 +4,5 @@ __pycache__/
 *.pyc
 .env
 dist/
-build/
+build/.env
+.env

@@ -2,10 +2,10 @@ import easyocr
 from PIL import Image
 import numpy as np
 
-# Lazy load OCR model
+# Global OCR reader
 reader = None
 
-def get_reader():
+def load_reader():
     global reader
     if reader is None:
         reader = easyocr.Reader(
@@ -13,8 +13,12 @@ def get_reader():
             gpu=False,
             download_enabled=True
         )
-    return reader
 
+def get_reader():
+    global reader
+    if reader is None:
+        load_reader()
+    return reader
 
 def extract_text(image_path: str):
     """
