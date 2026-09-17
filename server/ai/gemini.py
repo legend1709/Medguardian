@@ -14,8 +14,11 @@ def analyze_medicine_image(image_path):
         model="gemini-2.5-flash",
         contents=[
             "Read this medicine strip and return ONLY JSON with name, generic_name, uses, dosage, timing, side_effects, warnings, confidence.",
-            genai.types.Part.from_bytes(data=img, mime_type="image/jpeg"),
-        ],
+            genai.types.Part.from_bytes(
+                data=img,
+                mime_type="image/jpeg"
+            )
+        ]
     )
 
     text = response.text.replace("```json", "").replace("```", "").strip()

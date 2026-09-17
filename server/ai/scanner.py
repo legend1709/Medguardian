@@ -20,6 +20,7 @@ async def scan_medicine(image: UploadFile):
             "success": True,
             "data": medicine
         }
+
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
