@@ -1,38 +1,21 @@
-const API_URL = "http://127.0.0.1:8000";
+const API = import.meta.env.VITE_API_URL;
 
-// AI Medicine Scan
-export const scanMedicine = async (imageFile) => {
+export const scanMedicine = async (file) => {
   const formData = new FormData();
-  formData.append("image", imageFile);
+  formData.append("file", file);
 
-  const response = await fetch(`${API_URL}/scan/`, {
+  const response = await fetch(`${API}/scan`, {
     method: "POST",
     body: formData,
   });
 
+  if (!response.ok) {
+    throw new Error("Medicine scan failed");
+  }
+
   const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data.detail || "Medicine scan failed");
-  }
-
-  return data;
-};
-
-// Scan History
-export const getScanHistory = async () => {
-  try {
-    const response = await fetch(`${API_URL}/history/`);
-
-    if (!response.ok) return [];
-
-    const data = await response.json();
-
-    // Backend array ya {history: []} dono support
-    if (Array.isArray(data)) return data;
-    return data.history || [];
-  } catch (error) {
-    console.error("History Error:", error);
-    return [];
-  }
+  return {
+    data,
+  };
 };
