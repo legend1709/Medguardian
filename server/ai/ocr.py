@@ -12,7 +12,7 @@ def load_reader():
             ["en"],
             gpu=False,
             model_storage_directory="model",
-            download_enabled=False
+            download_enabled=True
         )
 
 def get_reader():
