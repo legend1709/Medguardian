@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from google import genai
 from dotenv import load_dotenv
 
@@ -45,19 +46,28 @@ def analyze_medicine_image(image_path):
         img = f.read()
 
     try:
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=[
-                prompt,
-                genai.types.Part.from_bytes(
-                    data=img,
-                    mime_type="image/jpeg"
+        # Retry once if Gemini is busy
+        for attempt in range(2):
+            try:
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=[
+                        prompt,
+                        genai.types.Part.from_bytes(
+                            data=img,
+                            mime_type="image/jpeg"
+                        )
+                    ]
                 )
-            ]
-        )
+                break
+            except Exception:
+                if attempt == 1:
+                    raise
+                time.sleep(1)
 
         text = response.text.strip()
 
+        # Remove markdown if present
         if "```" in text:
             text = text.replace("```json", "").replace("```", "").strip()
 
@@ -67,7 +77,9 @@ def analyze_medicine_image(image_path):
 
         return json.loads(text)
 
-    except Exception:
+    except Exception as e:
+        print("Gemini Error:", str(e))
+
         return {
             "brand_name": "AI temporarily unavailable",
             "composition": "Unknown",
@@ -78,13 +90,13 @@ def analyze_medicine_image(image_path):
             "disadvantages": [],
             "good_or_not": {
                 "rating": "Unavailable",
-                "reason": "Gemini server is busy. Please try again."
+                "reason": "Gemini server is temporarily busy."
             },
             "dosage": "N/A",
             "timing": "N/A",
             "side_effects": [],
             "warnings": [
-                "Server busy (503). Try again in a few seconds."
+                "Please try scanning again in a few seconds."
             ],
             "confidence": 0
         }
