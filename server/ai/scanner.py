@@ -1,17 +1,25 @@
+import os
+import uuid
 from fastapi import UploadFile
+from ai.gemini import analyze_medicine_image
+
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 async def scan_medicine(image: UploadFile):
-    return {
-        "success": True,
-        "data": {
-            "name": "Test OK",
-            "generic_name": "Scanner Working",
-            "uses": ["Backend route verified"],
-            "dosage": "N/A",
-            "timing": "N/A",
-            "side_effects": [],
-            "warnings": [],
-            "confidence": 100,
-            "ocr_text": "BYPASS MODE"
+    filename = f"{uuid.uuid4()}.jpg"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+    try:
+        with open(filepath, "wb") as f:
+            f.write(await image.read())
+
+        medicine = analyze_medicine_image(filepath)
+
+        return {
+            "success": True,
+            "data": medicine
         }
-    }
+    finally:
+        if os.path.exists(filepath):
+            os.remove(filepath)

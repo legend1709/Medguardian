@@ -4,46 +4,19 @@ from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
-
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-def analyze_medicine(ocr_text):
-    prompt = f"""
-    Extract medicine information from this OCR text.
+def analyze_medicine_image(image_path):
+    with open(image_path, "rb") as f:
+        img = f.read()
 
-    OCR:
-    {ocr_text}
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[
+            "Read this medicine strip and return ONLY JSON with name, generic_name, uses, dosage, timing, side_effects, warnings, confidence.",
+            genai.types.Part.from_bytes(data=img, mime_type="image/jpeg"),
+        ],
+    )
 
-    Return ONLY JSON:
-    {{
-      "name":"",
-      "generic_name":"",
-      "uses":[""],
-      "dosage":"",
-      "timing":"",
-      "side_effects":[""],
-      "warnings":[""],
-      "confidence":90
-    }}
-    """
-
-    try:
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt
-        )
-
-        text = response.text.replace("```json","").replace("```","").strip()
-        return json.loads(text)
-
-    except Exception:
-        return {
-            "name": "Medicine Detected",
-            "generic_name": "AI temporarily unavailable",
-            "uses": ["OCR completed successfully"],
-            "dosage": "Try again in a few seconds",
-            "timing": "N/A",
-            "side_effects": [],
-            "warnings": ["Gemini server is busy (503)."],
-            "confidence": 40
-        }
+    text = response.text.replace("```json", "").replace("```", "").strip()
+    return json.loads(text)
