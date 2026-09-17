@@ -1,17 +1,27 @@
 import "./Scanner.css";
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Camera, Upload, ArrowLeft } from "lucide-react";
 import { scanMedicine } from "../../services/scan";
 import BottomNavbar from "../../components/BottomNavbar";
 
 export default function Scanner() {
   const navigate = useNavigate();
+  const location = useLocation();
   const inputRef = useRef();
 
   const [image, setImage] = useState(null);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Receive image from Home page camera
+  useEffect(() => {
+    if (location.state?.image) {
+      const imgFile = location.state.image;
+      setFile(imgFile);
+      setImage(URL.createObjectURL(imgFile));
+    }
+  }, [location.state]);
 
   const selectImage = (e) => {
     const img = e.target.files[0];
