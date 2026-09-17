@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/login/Login";
 import Home from "./pages/home/Home";
-import Scanner from "./pages/scanner/Scanner";
+import Scanner from "./pages/Scanner/Scanner";
 import Result from "./pages/result/Result";
 import History from "./pages/history/History";
 import Reminder from "./pages/reminders/Reminder";
