@@ -2,7 +2,7 @@ import easyocr
 from PIL import Image
 import numpy as np
 
-# OCR reader (lazy loading)
+# Global OCR reader
 reader = None
 
 def get_reader():

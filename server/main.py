@@ -1,7 +1,10 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database.init_db import init_database
+from ai.ocr import get_reader
 
 from routes.scan import router as scan_router
 from routes.history import router as history_router
@@ -9,13 +12,23 @@ from routes.reminder import router as reminder_router
 from routes.medicine import router as medicine_router
 from routes.admin import router as admin_router
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Database initialize
+    init_database()
+
+    # OCR model preload (startup par sirf ek baar)
+    get_reader()
+
+    yield
+
+
 app = FastAPI(
     title="MedGuardian API",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
-
-# Database initialize
-init_database()
 
 # CORS
 app.add_middleware(
@@ -30,12 +43,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def root():
     return {
         "status": "running",
         "app": "MedGuardian API"
     }
+
 
 # API Routes
 app.include_router(scan_router, prefix="/scan", tags=["AI Scan"])
