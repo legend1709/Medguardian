@@ -1,0 +1,85 @@
+.reminder-page{
+  max-width:430px;
+  margin:auto;
+  padding:24px 20px 90px;
+}
+
+.reminder-page h1{
+  font-size:28px;
+  font-weight:800;
+}
+
+.reminder-page p{
+  color:#64748B;
+  margin-top:6px;
+}
+
+.add-box{
+  margin-top:22px;
+  background:#fff;
+  padding:18px;
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  box-shadow:0 10px 25px rgba(15,23,42,.06);
+}
+
+.add-box input{
+  height:48px;
+  border:1px solid #E5E7EB;
+  border-radius:12px;
+  padding:0 14px;
+  font-size:14px;
+}
+
+.add-box button{
+  height:48px;
+  border:none;
+  border-radius:12px;
+  background:#2563EB;
+  color:#fff;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  cursor:pointer;
+}
+
+.reminder-list{
+  margin-top:22px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.reminder-card{
+  background:#fff;
+  border-radius:18px;
+  padding:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 8px 20px rgba(15,23,42,.05);
+}
+
+.reminder-card h3{
+  font-size:16px;
+}
+
+.reminder-card span{
+  color:#64748B;
+  font-size:14px;
+}
+
+.delete{
+  color:#DC2626;
+  cursor:pointer;
+}
+
+.empty{
+  text-align:center;
+  color:#64748B;
+  padding:50px 20px;
+}
