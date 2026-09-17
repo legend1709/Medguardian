@@ -1,3 +1,4 @@
+
 import "./Result.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
