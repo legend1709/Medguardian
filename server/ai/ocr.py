@@ -2,22 +2,16 @@ import easyocr
 from PIL import Image
 import numpy as np
 
-# Global OCR reader
+# OCR reader (lazy loading)
 reader = None
-
-def load_reader():
-    global reader
-    if reader is None:
-        reader = easyocr.Reader(
-            ["en"],
-            gpu=False,
-            download_enabled=True
-        )
 
 def get_reader():
     global reader
     if reader is None:
-        load_reader()
+        reader = easyocr.Reader(
+            ["en"],
+            gpu=False
+        )
     return reader
 
 def extract_text(image_path: str):
@@ -27,9 +21,8 @@ def extract_text(image_path: str):
     result = get_reader().readtext(image)
 
     lines = [item[1] for item in result]
-    full_text = " ".join(lines)
 
     return {
-        "text": full_text,
+        "text": " ".join(lines),
         "lines": lines
     }
