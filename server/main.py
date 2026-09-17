@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import threading
 
 from database.init_db import init_database
-from ai.ocr import load_reader
 
 from routes.scan import router as scan_router
 from routes.history import router as history_router
@@ -31,11 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# OCR model preload in background
-@app.on_event("startup")
-def preload_ocr():
-    threading.Thread(target=load_reader, daemon=True).start()
 
 @app.get("/")
 def root():
