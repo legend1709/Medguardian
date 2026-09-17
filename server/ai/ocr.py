@@ -11,7 +11,8 @@ def load_reader():
         reader = easyocr.Reader(
             ["en"],
             gpu=False,
-            download_enabled=True
+            model_storage_directory="model",
+            download_enabled=False
         )
 
 def get_reader():
@@ -21,15 +22,6 @@ def get_reader():
     return reader
 
 def extract_text(image_path: str):
-    """
-    Image se text extract karta hai
-    Returns:
-        {
-            "text": "...",
-            "lines": [...]
-        }
-    """
-
     image = Image.open(image_path).convert("RGB")
     image = np.array(image)
 
