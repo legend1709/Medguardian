@@ -11,7 +11,6 @@ def load_reader():
         reader = easyocr.Reader(
             ["en"],
             gpu=False,
-            model_storage_directory="model",
             download_enabled=True
         )
 
