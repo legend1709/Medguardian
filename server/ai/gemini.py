@@ -57,7 +57,10 @@ def analyze_medicine_image(image_path):
                             data=img,
                             mime_type="image/jpeg"
                         )
-                    ]
+                    ],
+                    config={
+                        "response_mime_type": "application/json"
+                    }
                 )
                 break
             except Exception:
@@ -66,15 +69,6 @@ def analyze_medicine_image(image_path):
                 time.sleep(1)
 
         text = response.text.strip()
-
-        # Remove markdown if present
-        if "```" in text:
-            text = text.replace("```json", "").replace("```", "").strip()
-
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        text = text[start:end]
-
         return json.loads(text)
 
     except Exception as e:
