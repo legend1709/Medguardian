@@ -46,21 +46,18 @@ def analyze_medicine_image(image_path):
         img = f.read()
 
     try:
-        # Retry once if Gemini is busy
+        # Retry once if Gemini is temporarily busy
         for attempt in range(2):
             try:
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.6-flash",
                     contents=[
                         prompt,
                         genai.types.Part.from_bytes(
                             data=img,
                             mime_type="image/jpeg"
                         )
-                    ],
-                    config={
-                        "response_mime_type": "application/json"
-                    }
+                    ]
                 )
                 break
             except Exception:
@@ -69,10 +66,27 @@ def analyze_medicine_image(image_path):
                 time.sleep(1)
 
         text = response.text.strip()
-        return json.loads(text)
+
+        # Remove markdown if Gemini returns it
+        if text.startswith("```"):
+            text = (
+                text.replace("```json", "")
+                    .replace("```", "")
+                    .strip()
+            )
+
+        # Extract JSON safely
+        start = text.find("{")
+        end = text.rfind("}") + 1
+
+        if start == -1 or end == 0:
+            raise Exception("Invalid JSON received from Gemini")
+
+        return json.loads(text[start:end])
 
     except Exception as e:
-        print("Gemini Error:", str(e))
+        print("========== GEMINI ERROR ==========")
+        print(str(e))
 
         return {
             "brand_name": "AI temporarily unavailable",
