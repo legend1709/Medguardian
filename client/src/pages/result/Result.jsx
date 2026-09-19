@@ -1,6 +1,7 @@
-
 import "./Result.css";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import axios from "axios";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -16,6 +17,33 @@ export default function Result() {
   const { state } = useLocation();
 
   const medicine = state?.medicine;
+
+  // Railway backend URL
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
+  // Save history automatically
+  useEffect(() => {
+    if (!medicine) return;
+
+    const saveHistory = async () => {
+      try {
+        await axios.post(`${API_URL}/history/save`, {
+          name: medicine.brand_name,
+          uses: Array.isArray(medicine.uses)
+            ? medicine.uses.join(", ")
+            : medicine.uses || "",
+          confidence: medicine.confidence || 0,
+        });
+
+        console.log("History saved");
+      } catch (err) {
+        console.error("History save failed:", err);
+      }
+    };
+
+    saveHistory();
+  }, [medicine]);
 
   if (!medicine) {
     return (

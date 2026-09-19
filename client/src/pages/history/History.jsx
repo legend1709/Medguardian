@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Scan } from "lucide-react";
-import { getScanHistory } from "../../services/scan";
+import axios from "axios";
 import BottomNavbar from "../../components/BottomNavbar";
 import "./History.css";
 
@@ -9,13 +9,21 @@ export default function History() {
   const navigate = useNavigate();
   const [history, setHistory] = useState([]);
 
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
   useEffect(() => {
     loadHistory();
   }, []);
 
   const loadHistory = async () => {
-    const data = await getScanHistory();
-    setHistory(data);
+    try {
+      const res = await axios.get(`${API_URL}/history`);
+      setHistory(res.data.history || []);
+    } catch (err) {
+      console.error("History load failed:", err);
+      setHistory([]);
+    }
   };
 
   return (
@@ -41,7 +49,13 @@ export default function History() {
                 key={item.id}
                 onClick={() =>
                   navigate("/result", {
-                    state: { medicine: item },
+                    state: {
+                      medicine: {
+                        brand_name: item.name,
+                        uses: item.uses ? item.uses.split(", ") : [],
+                        confidence: item.confidence,
+                      },
+                    },
                   })
                 }
               >
@@ -50,7 +64,7 @@ export default function History() {
 
                   <div>
                     <h3>{item.name}</h3>
-                    <span>{item.generic_name}</span>
+                    <span>{item.date}</span>
                   </div>
                 </div>
 

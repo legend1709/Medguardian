@@ -8,7 +8,7 @@ load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-prompt = """
+PROMPT = """
 Analyze this medicine strip image.
 
 Return ONLY valid JSON in this format:
@@ -41,70 +41,73 @@ Rules:
 - Return JSON only. No markdown.
 """
 
+MAX_WAIT = 30  # Retry for 30 seconds
+
+
 def analyze_medicine_image(image_path):
     with open(image_path, "rb") as f:
         img = f.read()
 
-    try:
-        # Retry once if Gemini is temporarily busy
-        for attempt in range(2):
-            try:
-                response = client.models.generate_content(
-                    model="gemini-3.6-flash",
-                    contents=[
-                        prompt,
-                        genai.types.Part.from_bytes(
-                            data=img,
-                            mime_type="image/jpeg"
-                        )
-                    ]
-                )
-                break
-            except Exception:
-                if attempt == 1:
-                    raise
-                time.sleep(1)
+    start_time = time.time()
 
-        text = response.text.strip()
-
-        # Remove markdown if Gemini returns it
-        if text.startswith("```"):
-            text = (
-                text.replace("```json", "")
-                    .replace("```", "")
-                    .strip()
+    while True:
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.6-flash",
+                contents=[
+                    PROMPT,
+                    genai.types.Part.from_bytes(
+                        data=img,
+                        mime_type="image/jpeg"
+                    )
+                ]
             )
 
-        # Extract JSON safely
-        start = text.find("{")
-        end = text.rfind("}") + 1
+            text = response.text.strip()
 
-        if start == -1 or end == 0:
-            raise Exception("Invalid JSON received from Gemini")
+            # Remove markdown if Gemini returns it
+            if text.startswith("```"):
+                text = (
+                    text.replace("```json", "")
+                        .replace("```", "")
+                        .strip()
+                )
 
-        return json.loads(text[start:end])
+            # Extract JSON safely
+            start = text.find("{")
+            end = text.rfind("}") + 1
 
-    except Exception as e:
-        print("========== GEMINI ERROR ==========")
-        print(str(e))
+            if start == -1 or end == 0:
+                raise Exception("Invalid JSON received")
 
-        return {
-            "brand_name": "AI temporarily unavailable",
-            "composition": "Unknown",
-            "dosage_form": "Unknown",
-            "manufacturer": "Unknown",
-            "uses": [],
-            "advantages": [],
-            "disadvantages": [],
-            "good_or_not": {
-                "rating": "Unavailable",
-                "reason": "Gemini server is temporarily busy."
-            },
-            "dosage": "N/A",
-            "timing": "N/A",
-            "side_effects": [],
-            "warnings": [
-                "Please try scanning again in a few seconds."
-            ],
-            "confidence": 0
-        }
+            return json.loads(text[start:end])
+
+        except Exception as e:
+            print("Gemini Retry:", e)
+
+            # Stop after 30 seconds
+            if time.time() - start_time >= MAX_WAIT:
+                break
+
+            time.sleep(2)
+
+    return {
+        "brand_name": "AI temporarily unavailable",
+        "composition": "Unknown",
+        "dosage_form": "Unknown",
+        "manufacturer": "Unknown",
+        "uses": [],
+        "advantages": [],
+        "disadvantages": [],
+        "good_or_not": {
+            "rating": "Unavailable",
+            "reason": "Gemini server is temporarily busy."
+        },
+        "dosage": "N/A",
+        "timing": "N/A",
+        "side_effects": [],
+        "warnings": [
+            "Please try scanning again."
+        ],
+        "confidence": 0
+    }
