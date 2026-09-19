@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Scan } from "lucide-react";
-import axios from "axios";
+import { getScanHistory } from "../../services/scan";
 import BottomNavbar from "../../components/BottomNavbar";
 import "./History.css";
 
@@ -9,19 +9,16 @@ export default function History() {
   const navigate = useNavigate();
   const [history, setHistory] = useState([]);
 
-  const API_URL =
-    import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
-
   useEffect(() => {
     loadHistory();
   }, []);
 
   const loadHistory = async () => {
     try {
-      const res = await axios.get(`${API_URL}/history`);
-      setHistory(res.data.history || []);
+      const data = await getScanHistory();
+      setHistory(data || []);
     } catch (err) {
-      console.error("History load failed:", err);
+      console.error(err);
       setHistory([]);
     }
   };
@@ -44,24 +41,9 @@ export default function History() {
             </div>
           ) : (
             history.map((item) => (
-              <div
-                className="history-card"
-                key={item.id}
-                onClick={() =>
-                  navigate("/result", {
-                    state: {
-                      medicine: {
-                        brand_name: item.name,
-                        uses: item.uses ? item.uses.split(", ") : [],
-                        confidence: item.confidence,
-                      },
-                    },
-                  })
-                }
-              >
+              <div className="history-card" key={item.id}>
                 <div className="left">
                   <div className="icon">💊</div>
-
                   <div>
                     <h3>{item.name}</h3>
                     <span>{item.date}</span>

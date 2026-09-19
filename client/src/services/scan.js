@@ -3,7 +3,7 @@ const API = import.meta.env.VITE_API_URL;
 // Medicine Scan
 export const scanMedicine = async (file) => {
   const formData = new FormData();
-  formData.append("image", file); // <-- image field
+  formData.append("image", file);
 
   const response = await fetch(`${API}/scan/`, {
     method: "POST",
@@ -18,7 +18,24 @@ export const scanMedicine = async (file) => {
   return await response.json();
 };
 
-// Scan History
+// Save Scan History
+export const saveScanHistory = async (medicine) => {
+  await fetch(`${API}/history/save`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: medicine.brand_name,
+      uses: Array.isArray(medicine.uses)
+        ? medicine.uses.join(", ")
+        : medicine.uses || "",
+      confidence: medicine.confidence || 0,
+    }),
+  });
+};
+
+// Get Scan History
 export const getScanHistory = async () => {
   const response = await fetch(`${API}/history/`);
 
@@ -26,5 +43,6 @@ export const getScanHistory = async () => {
     throw new Error("Failed to fetch history");
   }
 
-  return await response.json();
+  const data = await response.json();
+  return data.history; // <-- important fix
 };
